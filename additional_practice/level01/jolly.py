@@ -1,3 +1,6 @@
+## Please Note: The UVA online judge wasn't working so I
+## included a screenshot of several example cases passing.
+
 all_ns = []
 all_ints = []
 while True:
