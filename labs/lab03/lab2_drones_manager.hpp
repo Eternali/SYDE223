@@ -54,9 +54,7 @@ protected:
 public:
 	// EXPLICIT CONSTRUCTOR AND DESTRUCTOR
 	// PURPOSE: Creates a new empty DronesManager
-	DronesManager() {
-        
-    }
+	DronesManager();
 	// PURPOSE: Destroys this instance and frees up all dynamically allocated memory
 	~DronesManager();
 	// PURPOSE: Comparison operator to compare two DroneRecord instances
