@@ -46,5 +46,5 @@ int main() {
 	for (int index = 0; index < 12; ++index) {
     	cout << test_descriptions[index] << endl << get_status_str(test_results[index]) << endl;
 	}
-    system("pause");
+    // system("pause");
 }

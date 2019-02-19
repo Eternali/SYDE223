@@ -7,14 +7,13 @@ using namespace std;
 // TODO: Implement all of the listed functions below
 
 DronesManager::DronesManager() {
-    first = nullptr;
-    last = nullptr;
+    first = NULL;
+    last = NULL;
     size = 0;
 }
 
 DronesManager::~DronesManager() {
-    delete first;
-    delete last;
+
 }
 
 bool operator==(const DronesManager::DroneRecord& lhs, const DronesManager::DroneRecord& rhs) {
@@ -32,28 +31,29 @@ unsigned int DronesManager::get_size() const {
 }
 
 bool DronesManager::empty() const {
-	return size < 1;
+	return size < 1 && first == NULL && last == NULL;
 }
 
 DronesManager::DroneRecord DronesManager::select(unsigned int index) const {
-	if (get_size() < 1) return DroneRecord(0);
+	if (empty()) return DroneRecord(0);
 
-    int i = 0;
     DronesManager::DroneRecord* selected = first;
-    while (i <= index && selected != nullptr) {
+    int i = 0;
+    while (i < index && selected != NULL) {
         selected = selected->next;
+        i++;
     }
 
-    return selected != nullptr ? *selected : *last;
+    return selected != NULL ? *selected : *last;
 }
 
 unsigned int DronesManager::search(DroneRecord value) const {
-	if (get_size() < 1) return 0;
+	if (empty()) return 0;
 
     DronesManager::DroneRecord* found = first;
     int i = 0;
-    while (i < get_size() && found == nullptr) {
-        if ((*found) == value) break;
+    while (i < get_size() && found != NULL) {
+        if (*found == value) break;
         found = found->next;
         i++;
     }
@@ -70,69 +70,123 @@ void DronesManager::print() const {
 }
 
 bool DronesManager::insert(DroneRecord value, unsigned int index) {
+    if (0 > index || get_size() <= index) return false;
     DronesManager::DroneRecord* found = first;
     for (int i = 0; i < index - 1; i++) {
         found = found->next;
     }
-    if (found == nullptr) return false;
-    *found->next = value;
-    value.next = found->next->next;
+    if (found == NULL) return false;
+
+    DroneRecord* newDrone = value.copy();
+    newDrone->prev = found;
+    newDrone->next = found->next;
+    found->next = newDrone;
+
+    size++;
     return true;
 }
 
 bool DronesManager::insert_front(DroneRecord value) {
-	value.next = first;
-    first = &value;
+    DroneRecord* newDrone = value.copy();
+    if (empty()) {
+        last = newDrone;
+        newDrone->prev = NULL;
+        newDrone->next = NULL;
+    } else {
+        newDrone->prev = NULL;
+        newDrone->next = first;
+        first->prev = newDrone;
+    }
+    first = newDrone;
+
+    size++;
     return true;
 }
 
 bool DronesManager::insert_back(DroneRecord value) {
-	*last->next = value;
-    last = &value;
+    DroneRecord* newDrone = value.copy();
+    if (empty()) {
+        first = newDrone;
+        newDrone->prev = NULL;
+        newDrone->next = NULL;
+    } else {
+        newDrone->prev = last;
+        newDrone->next = NULL;
+        last->next = newDrone;
+    }
+    last = newDrone;
+
+    size++;
     return true;
 }
 
 bool DronesManager::remove(unsigned int index) {
-	if (0 > index || get_size() >= index) return false;
+	if (0 > index || get_size() <= index) return false;
     DronesManager::DroneRecord* cur = first;
     for (int i = 0; i < index; i++) {
         cur = cur->next;
     }
     cur->prev->next = cur->next;
+
+    size--;
     return true;
 }
 
 bool DronesManager::remove_front() {
-	if (first == nullptr) return false;
+	if (first == NULL) return false;
     first = first->next;
+    if (first != NULL) {
+        first->prev = NULL;
+    }
+
+    size--;
+    if (get_size() < 1) last = NULL;
     return true;
 }
 
 bool DronesManager::remove_back() {
-	if (last == nullptr) return false;
+	if (last == NULL) return false;
     last = last->prev;
+    if (last != NULL) {
+        last->next = NULL;
+    }
+
+    size--;
+    if (get_size() < 1) first = NULL;
     return true;
 }
 
 bool DronesManager::replace(unsigned int index, DroneRecord value) {
-	if (0 > index || get_size() >= index) return false;
+	if (0 > index || get_size() <= index) return false;
+    DronesManager::DroneRecord* newDrone = value.copy();
     DronesManager::DroneRecord* cur = first;
-    for (int i = 0; i < index - 1; i++) {
+    for (int i = 0; i < index; i++) {
         cur = cur->next;
     }
-    value.prev = cur;
-    value.next = cur->next;
-    cur->next = &value;
+    newDrone->prev = cur->prev;
+    newDrone->next = cur->next;
+    if (index == 0) {
+        first = newDrone;
+        cur->next->prev = newDrone;
+    } else if (index == get_size() - 1) {
+        last = newDrone;
+        cur->prev->next = newDrone;
+    } else {
+        cur->prev->next = newDrone;
+        cur->next->prev = newDrone;
+    }
     return true;
 }
 
 bool DronesManager::reverse_list() {
     DronesManager::DroneRecord* cur = first;
-    while (cur != nullptr) {
+    first = last;
+    last = cur;
+    while (cur != NULL) {
         DronesManager::DroneRecord* tmp = cur->next;
         cur->next = cur->prev;
         cur->prev = tmp;
-        cur = cur->prev;
+        cur = tmp;
     }
     return true;
 }
@@ -141,7 +195,7 @@ bool DronesManagerSorted::is_sorted_asc() const {
     if (get_size() <= 1) return true;
 
     DronesManager::DroneRecord* cur = first;
-    while (cur != nullptr) {
+    while (cur != NULL) {
         if (cur->droneID > cur->next->droneID) return false; 
         cur = cur->next;
     }
@@ -149,34 +203,114 @@ bool DronesManagerSorted::is_sorted_asc() const {
 }
 
 bool DronesManagerSorted::is_sorted_desc() const {
-    // if (get_size() <= 1) return true;
+    if (get_size() <= 1) return true;
 
-    // DronesManager::DroneRecord* cur = first;
-    // while (*cur != NULL) {
-    //     if (cur->droneID < cur->next->droneID) return false; 
-    //     cur = cur->next;
-    // }
-    // return true;
+    DronesManager::DroneRecord* cur = first;
+    while (cur != NULL) {
+        if (cur->droneID < cur->next->droneID) return false; 
+        cur = cur->next;
+    }
+    return true;
 }
 
-bool DronesManagerSorted::insert_sorted_asc(DroneRecord val) {
-	// if (*first == NULL) {
-    //     *first = val;
-    // } else if (first->droneID >= val.droneID) {
-    //     val.next = first;
-    //     val.next->prev = val;
-    //     *first = val;
-    // }
+bool DronesManagerSorted::insert_sorted_asc(DroneRecord value) {
+    DronesManager::DroneRecord* newDrone = value.copy();
+	if (empty()) {
+        newDrone->prev = NULL;
+        newDrone->next = NULL;
+        first = newDrone;
+        last = newDrone;
+    } else if (first->droneID >= newDrone->droneID) {
+        newDrone->prev = NULL;
+        newDrone->next = first;
+        first = newDrone;
+    } else if (last->droneID <= newDrone->droneID) {
+        newDrone->prev = last;
+        newDrone->next = NULL;
+        last = newDrone;
+    } else {
+        DronesManager::DroneRecord* cur = first;
+        while (cur->next != NULL && cur->droneID < newDrone->droneID) {
+            cur = cur->next;
+        }
+        newDrone->prev = cur->prev;
+        newDrone->next = cur;
+        cur->prev = newDrone;
+    }
 
-    // return true;
+    return true;
 }
 
-bool DronesManagerSorted::insert_sorted_desc(DroneRecord val) {
-	return false;
+bool DronesManagerSorted::insert_sorted_desc(DroneRecord value) {
+	DronesManager::DroneRecord* newDrone = value.copy();
+	if (empty()) {
+        newDrone->prev = NULL;
+        newDrone->next = NULL;
+        first = newDrone;
+        last = newDrone;
+    } else if (first->droneID <= newDrone->droneID) {
+        newDrone->prev = NULL;
+        newDrone->next = first;
+        first = newDrone;
+    } else if (last->droneID >= newDrone->droneID) {
+        newDrone->prev = last;
+        newDrone->next = NULL;
+        last = newDrone;
+    } else {
+        DronesManager::DroneRecord* cur = first;
+        while (cur->next != NULL && cur->droneID > newDrone->droneID) {
+            cur = cur->next;
+        }
+        newDrone->prev = cur->prev;
+        newDrone->next = cur;
+        cur->prev = newDrone;
+    }
+
+    return true;
 }
+
+// utility function for swapping two elements
+template<typename T>
+void swap(T* a, T* b) {
+    T t = *a;
+    *a = *b;
+    *b = t;
+}
+
+/* Considers last element as pivot, places the pivot element at its 
+   correct position in sorted array, and places all smaller (smaller than 
+   pivot) to left of pivot and all greater elements to right of pivot */
+DronesManager::DroneRecord* DronesManagerSorted::partition(DroneRecord* l, DroneRecord* h, int direction) {
+    // set pivot as h element 
+    unsigned int x  = h->droneID; 
+  
+    // similar to i = l-1 for array implementation 
+    DroneRecord* i = l->prev; 
+ 
+    for (DroneRecord* j = l; j != h; j = j->next) {
+        if (direction > 0 ? j->droneID <= x : j->droneID <= x) {
+            i = (i == NULL) ? l : i->next; 
+            swap(&(i->droneID), &(j->droneID)); 
+        }
+    }
+    i = (i == NULL) ? l : i->next; // Similar to i++ 
+    swap(&(i->droneID), &(h->droneID)); 
+    return i; 
+} 
+  
+/* A recursive implementation of quicksort for linked list */  
+void DronesManagerSorted::quickSort(DroneRecord* l, DroneRecord* h, int direction) {
+    if (h != NULL && l != h && l != h->next) {
+        DroneRecord* p = partition(l, h, direction); 
+        quickSort(l, p->prev, direction); 
+        quickSort(p->next, h, direction); 
+    }
+} 
 
 void DronesManagerSorted::sort_asc() {
+    quickSort(first, last, 1);
 }
     
 void DronesManagerSorted::sort_desc() {
+    quickSort(first, last, -1);
 }

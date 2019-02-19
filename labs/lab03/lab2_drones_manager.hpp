@@ -25,6 +25,10 @@ protected:
 				manufacturer(newManufacturer), description(newDescription), 
 				batteryType(newBatteryType) {}
 
+        DroneRecord* copy() {
+            return new DroneRecord(droneID, range, yearBought, droneType, manufacturer, description, batteryType);
+        }
+
 		// drone ID, range, and year bought stored as unsigned ints
         unsigned int droneID, range, yearBought;
         // drone type, manufacturer, description, and battery type stored as strings
@@ -111,6 +115,10 @@ public:
 
 // PURPOSE: Allows record storage in sorted ascending or descending order based on drone ID value
 class DronesManagerSorted : public DronesManager {	
+private:
+    DroneRecord* partition(DroneRecord* l, DroneRecord* h, int direction);
+    void quickSort(DroneRecord* l, DroneRecord* h, int direction);
+
 public:
 	// ACCESSORS
 	// PURPOSE: Returns true if the list is sorted in ascending (non-descending) order
