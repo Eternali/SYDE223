@@ -117,25 +117,58 @@ bool DronesManager::remove_back() {
 bool DronesManager::replace(unsigned int index, DroneRecord value) {
 	if (0 > index || get_size() >= index) return false;
     DronesManager::DroneRecord* cur = first;
-    for (int i = 0; i < index; i++) {
+    for (int i = 0; i < index - 1; i++) {
         cur = cur->next;
     }
-    
+    value.prev = cur;
+    value.next = cur->next;
+    cur->next = &value;
+    return true;
 }
 
 bool DronesManager::reverse_list() {
-	return false;
+    DronesManager::DroneRecord* cur = first;
+    while (cur != nullptr) {
+        DronesManager::DroneRecord* tmp = cur->next;
+        cur->next = cur->prev;
+        cur->prev = tmp;
+        cur = cur->prev;
+    }
+    return true;
 }
 
 bool DronesManagerSorted::is_sorted_asc() const {
-	return false;
+    if (get_size() <= 1) return true;
+
+    DronesManager::DroneRecord* cur = first;
+    while (cur != nullptr) {
+        if (cur->droneID > cur->next->droneID) return false; 
+        cur = cur->next;
+    }
+    return true;
 }
 
 bool DronesManagerSorted::is_sorted_desc() const {
+    // if (get_size() <= 1) return true;
+
+    // DronesManager::DroneRecord* cur = first;
+    // while (*cur != NULL) {
+    //     if (cur->droneID < cur->next->droneID) return false; 
+    //     cur = cur->next;
+    // }
+    // return true;
 }
 
 bool DronesManagerSorted::insert_sorted_asc(DroneRecord val) {
-	return false;
+	// if (*first == NULL) {
+    //     *first = val;
+    // } else if (first->droneID >= val.droneID) {
+    //     val.next = first;
+    //     val.next->prev = val;
+    //     *first = val;
+    // }
+
+    // return true;
 }
 
 bool DronesManagerSorted::insert_sorted_desc(DroneRecord val) {
