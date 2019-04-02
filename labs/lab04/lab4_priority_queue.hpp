@@ -31,7 +31,7 @@ protected:
   
 public:
 	// CONSTRUCTOR AND DESTRUCTOR
-	
+
 	// PURPOSE: Parametric constructor 
 	// initializes heap to an array of (n_capacity + 1) elements
 	PriorityQueue(unsigned int n_capacity);

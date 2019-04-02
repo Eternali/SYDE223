@@ -1,3 +1,7 @@
+// Lab 04 Binary Search Tree
+// Conrad Heidebrecht (20710386)
+// Kyle Lane (20621380)
+
 #include <iostream>
 #include "lab4_binary_search_tree.hpp"
 #include <queue>
