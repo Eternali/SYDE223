@@ -50,6 +50,11 @@ public:
 	// PURPOSE: Returns the minimum value of a node in the tree
   	// if the tree is empty, it returns (-1, "N/A")
 	TaskItem min() const;
+
+	TaskItem* minValueNode(TaskItem* node);
+
+	TaskItem* deleteNode(TaskItem* root, int priority, bool *is_success);
+
 	
 	// PURPOSE: Returns the tree height
 	unsigned int height() const;
