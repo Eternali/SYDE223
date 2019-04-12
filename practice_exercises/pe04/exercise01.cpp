@@ -1,3 +1,6 @@
+// Conrad Heidebrecht (20710386)
+// Kyle Lane (20621380)
+
 #include <iostream>
 
 using namespace std;
